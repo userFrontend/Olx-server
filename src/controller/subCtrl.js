@@ -22,9 +22,6 @@ const subCtrl = {
         const {name} = req.body
         const {token} = req.headers
         try {
-            if(!token){
-                return res.status(403).json({message: 'Token is required'})
-            }
             if(!name){
                 return res.status(403).json({message: 'Please fill all lines'})
             }

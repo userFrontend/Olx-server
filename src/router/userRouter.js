@@ -1,9 +1,10 @@
 const router = require('express').Router()
 const userCtrl = require('../controller/userCtrl')
+const authMiddleware = require('../middleware/authMiddleware')
 
 // FormData register
-router.get('/' , userCtrl.getUser)
-router.put('/:id' , userCtrl.update)
-router.delete('/:id' , userCtrl.deleteUser)
+router.get('/' , authMiddleware, userCtrl.getUser)
+router.put('/:id' , authMiddleware, userCtrl.update)
+router.delete('/:id' , authMiddleware, userCtrl.deleteUser)
 
 module.exports = router

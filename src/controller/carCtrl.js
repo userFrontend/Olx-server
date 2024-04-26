@@ -41,6 +41,18 @@ const carCtrl = {
                         images.push(imag);
                     }
                     req.body.photos = images;
+                } else if(image) {
+                    const format = image.mimetype.split('/')[1];
+                    if (format !== 'png' && format !== 'jpeg') {
+                        return res.status(403).json({message: 'File format incorrect'});
+                    }
+                    const createdImage = await cloudinary.v2.uploader.upload(image.tempFilePath, {
+                        folder: 'OLX'
+                    });
+                    removeTemp(image.tempFilePath);
+                    const imag = {public_id: createdImage.public_id, url: createdImage.secure_url};
+                    images.push(imag);
+                    req.body.photos = images;
                 }
             }
             const car = new Car(req.body);
@@ -61,7 +73,14 @@ const carCtrl = {
     getOne: async (req, res) => {
         const {id} = req.params
         try {
-            const getCar = await Car.findById(id)
+            const getCar = await Car.aggregate({
+                    $lookup: {
+                        from: 'user',
+                        localField: 'authorId',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+               })
             if(!getCar){
                 return res.status(400).send({message: 'Car not found'})
             }
@@ -85,7 +104,6 @@ const carCtrl = {
             
             if(deleteGall.length > 0){
                 deletePic.map(async pic => {
-                    console.log(pic);
                     await cloudinary.v2.uploader.destroy(pic.picture.public_id, async (err) =>{
                         if(err){
                             throw err
@@ -102,7 +120,6 @@ const carCtrl = {
     update: async (req, res) => {
         const {title} = req.body
         const {id} = req.params
-        console.log(title, id);
         if(!title || !id){
             return res.status(403).json({message: 'insufficient information'})
         }
@@ -128,8 +145,8 @@ const carCtrl = {
                             return result
                         }
                     })
-                    if(updatePic.picture){
-                        await cloudinary.v2.uploader.destroy(updatePic.picture.public_id, async (err) =>{
+                    if(updateCar.picture){
+                        await cloudinary.v2.uploader.destroy(updateCar.picture.public_id, async (err) =>{
                             if(err){
                                 throw err
                             }

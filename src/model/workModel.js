@@ -5,6 +5,10 @@ const workSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        subId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Sub',
+        },
         categoryType: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Type',
