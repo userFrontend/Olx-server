@@ -1,4 +1,5 @@
 const cloudinary = require('cloudinary')
+const mongoose = require('mongoose')
 const fs = require('fs');
 
 cloudinary.config({
@@ -60,17 +61,65 @@ const fashionCtrl = {
         }
     },
     getOne: async (req, res) => {
-        const {id} = req.params
+        const { id } = req.params;
         try {
-            const getFashion = await Fashion.findById(id)
-            if(!getFashion){
-                return res.status(400).send({message: 'Fashion not found'})
-            }
-            res.status(200).json({message: 'Find Fashion', getOne: getFashion})
+          const getFashion = await Fashion.aggregate([
+            {
+              $match: { _id: new mongoose.Types.ObjectId(id) },
+            },
+            {
+              $lookup: {
+                from: "cars",
+                let: { authorId: "$authorId" },
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$authorId", "$$authorId"] } } },
+                ],
+                as: "userCar",
+              },
+            },
+            {
+              $lookup: {
+                from: "fashions",
+                let: { authorId: "$authorId" },
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$authorId", "$$authorId"] } } },
+                ],
+                as: "userFashion",
+              },
+            },
+            {
+              $addFields: {
+                userProd: {
+                  $concatArrays: ["$userCar", "$userFashion"],
+                },
+              },
+            },
+            {
+              $project: {
+                userCar: 0,
+                userFashion: 0,
+              },
+            },
+            {
+              $lookup: {
+                from: "users",
+                let: { user: "$authorId" },
+                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$user"] } } }],
+                as: "user",
+              },
+            },
+            {
+              $unwind: "$user",
+            },
+          ]);
+          if (!getFashion) {
+            return res.status(400).send({ message: "Fashion not found" });
+          }
+          res.status(200).json({ message: "Find Fashion", getOne: getFashion });
         } catch (error) {
-            res.status(503).json({message: error.message})
+          res.status(503).json({ message: error.message });
         }
-    },
+      },
     delete: async (req, res) => {
         const {id} = req.params
         if(!id){

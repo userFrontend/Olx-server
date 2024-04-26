@@ -96,6 +96,25 @@ const userCtl = {
             res.status(503).json({message: error.message})
         }
     },
+    like: async (req, res) => {
+        const {id} = req.params;
+        const {prodId} = req.body
+        try {
+            const user = await User.findById(id);
+            if(!user){
+                return res.status(404).send({message: "User is Not Found"})
+            }
+            if(user.likes.includes(prodId)){
+                await User.updateOne({$pull: {likes: prodId}})
+                res.status(200).send({message: "Like lancled"})
+            } else {
+                await User.updateOne({$push: {likes: prodId}})
+                res.status(200).send({message: "Like added"})
+            }
+        } catch (error) {
+            res.status(503).send({message: error.message})
+        }
+    },
 
 
 }
