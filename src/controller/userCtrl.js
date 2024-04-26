@@ -49,7 +49,7 @@ const userCtl = {
         const {id} = req.params
         try {
             if(id === req.user._id || req.userIsAdmin){
-                const deleteUser = await User.findById(id)
+                const updateUser = await User.findById(id)
                 if(req.body.password && (req.body.password != "")){
                     const hashedPassword = await bcrypt.hash(req.body.password, 10);
                     req.body.password = hashedPassword;
@@ -57,7 +57,7 @@ const userCtl = {
                     delete req.body.password
                 }
 
-                if(deleteUser){
+                if(updateUser){
                     if(req.files){
                         const {image} = req.files;
                         if(image){
@@ -101,19 +101,18 @@ const userCtl = {
         const {prodId} = req.body
         try {
             const user = await User.findById(id);
-            console.log(user);
             if(!user){
                 return res.status(404).send({message: "User is Not Found"})
             }
             if(user.likes.includes(prodId)){
                 await User.updateOne({$pull: {likes: prodId}})
-                res.status(200).send({message: "Like lancled"})
+                res.status(200).json({message: "Like added", user})
             } else {
                 await User.updateOne({$push: {likes: prodId}})
-                res.status(200).send({message: "Like added"})
+                res.status(200).json({message: "Like lancled", user})
             }
         } catch (error) {
-            res.status(503).send({message: error.message})
+            res.status(503).json({message: error.message})
         }
     },
 
