@@ -101,6 +101,7 @@ const userCtl = {
         const {prodId} = req.body
         try {
             const user = await User.findById(id);
+            console.log(user);
             if(!user){
                 return res.status(404).send({message: "User is Not Found"})
             }

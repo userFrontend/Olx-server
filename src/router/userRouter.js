@@ -6,6 +6,6 @@ const authMiddleware = require('../middleware/authMiddleware')
 router.get('/' , authMiddleware, userCtrl.getUser)
 router.put('/:id' , authMiddleware, userCtrl.update)
 router.delete('/:id' , authMiddleware, userCtrl.deleteUser)
-router.post('/like/:id' , authMiddleware, userCtrl.like)
+router.put('/like/:id' , authMiddleware, userCtrl.like)
 
 module.exports = router
