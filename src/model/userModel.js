@@ -33,6 +33,10 @@ const userSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    likes: {
+        type: Array,
+        default: []
     }
 },
 {timestamps: true},
