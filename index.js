@@ -34,6 +34,7 @@ const subRouter = require('./src/router/subRouter');
 const typeRouter = require('./src/router/typeRouter');
 const fashionRouter = require('./src/router/fashionRouter');
 const workRouter = require('./src/router/workRouter');
+const userRouter = require('./src/router/userRouter');
 
 
 const app = express();
@@ -65,6 +66,7 @@ app.use('/api/type', typeRouter);
 app.use('/api/fashion', fashionRouter);
 app.use('/api/work', workRouter);
 app.use('/api/car', carRouter);
+app.use('/api/user', userRouter);
 
 // websocket functions
 let activeUsers = [];
