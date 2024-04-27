@@ -69,12 +69,12 @@ const fashionCtrl = {
             },
             {
               $lookup: {
-                from: "cars",
+                from: "Fashions",
                 let: { authorId: "$authorId" },
                 pipeline: [
                   { $match: { $expr: { $eq: ["$authorId", "$$authorId"] } } },
                 ],
-                as: "userCar",
+                as: "userFashion",
               },
             },
             {
@@ -90,13 +90,13 @@ const fashionCtrl = {
             {
               $addFields: {
                 userProd: {
-                  $concatArrays: ["$userCar", "$userFashion"],
+                  $concatArrays: ["$userFashion", "$userFashion"],
                 },
               },
             },
             {
               $project: {
-                userCar: 0,
+                userFashion: 0,
                 userFashion: 0,
               },
             },
@@ -120,31 +120,26 @@ const fashionCtrl = {
           res.status(503).json({ message: error.message });
         }
       },
-    delete: async (req, res) => {
+      delete: async (req, res) => {
         const {id} = req.params
         if(!id){
             return res.status(403).json({message: 'insufficient information'})
         }
-        
         try {
-            const deleteGall = await Fashion.findByIdAndDelete(id)
-            if(!deleteGall){
-                return res.status(400).send({message: 'Gallary not found'})
+            const deleteFashion = await Fashion.findByIdAndDelete(id)
+            if(!deleteFashion){
+                return res.status(400).send({message: 'Fashion not found'})
             }
-            const deletePic = await Fashion.findById(id) 
-            
-            if(deleteGall.length > 0){
-                deletePic.map(async pic => {
-                    console.log(pic);
-                    await cloudinary.v2.uploader.destroy(pic.picture.public_id, async (err) =>{
+            if(deleteFashion.photos.length > 0){
+                deleteFashion.photos.map(async pic => {
+                    await cloudinary.v2.uploader.destroy(pic.public_id, async (err) =>{
                         if(err){
                             throw err
                         }
                     })
                 })
             }
-            await Fashion.deleteMany({gallaryId: id})
-            res.status(200).send({message: 'Gallary deleted', deleteGall})
+            res.status(200).send({message: 'Fashion deleted', deleteFashion})
         } catch (error) {
             res.status(503).json({message: error.message})
         }

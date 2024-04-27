@@ -1,4 +1,5 @@
 const cloudinary = require('cloudinary')
+const mongoose = require('mongoose')
 const fs = require('fs');
 
 cloudinary.config({
@@ -73,14 +74,55 @@ const carCtrl = {
     getOne: async (req, res) => {
         const {id} = req.params
         try {
-            const getCar = await Car.aggregate({
-                    $lookup: {
-                        from: 'user',
-                        localField: 'authorId',
-                        foreignField: '_id',
-                        as: 'user'
-                    }
-               })
+            const getCar = await Car.aggregate([
+                {
+                  $match: { _id: new mongoose.Types.ObjectId(id) },
+                },
+                {
+                  $lookup: {
+                    from: "cars",
+                    let: { authorId: "$authorId" },
+                    pipeline: [
+                      { $match: { $expr: { $eq: ["$authorId", "$$authorId"] } } },
+                    ],
+                    as: "userCar",
+                  },
+                },
+                {
+                  $lookup: {
+                    from: "fashions",
+                    let: { authorId: "$authorId" },
+                    pipeline: [
+                      { $match: { $expr: { $eq: ["$authorId", "$$authorId"] } } },
+                    ],
+                    as: "userFashion",
+                  },
+                },
+                {
+                  $addFields: {
+                    userProd: {
+                      $concatArrays: ["$userCar", "$userFashion"],
+                    },
+                  },
+                },
+                {
+                  $project: {
+                    userCar: 0,
+                    userFashion: 0,
+                  },
+                },
+                {
+                  $lookup: {
+                    from: "users",
+                    let: { user: "$authorId" },
+                    pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$user"] } } }],
+                    as: "user",
+                  },
+                },
+                {
+                  $unwind: "$user",
+                },
+              ]);
             if(!getCar){
                 return res.status(400).send({message: 'Car not found'})
             }
@@ -96,23 +138,20 @@ const carCtrl = {
         }
         
         try {
-            const deleteGall = await Car.findByIdAndDelete(id)
-            if(!deleteGall){
-                return res.status(400).send({message: 'Gallary not found'})
+            const deleteCar = await Car.findByIdAndDelete(id)
+            if(!deleteCar){
+                return res.status(400).send({message: 'Car not found'})
             }
-            const deletePic = await Car.findById(id) 
-            
-            if(deleteGall.length > 0){
-                deletePic.map(async pic => {
-                    await cloudinary.v2.uploader.destroy(pic.picture.public_id, async (err) =>{
+            if(deleteCar.photos.length > 0){
+                deleteCar.photos.map(async pic => {
+                    await cloudinary.v2.uploader.destroy(pic.public_id, async (err) =>{
                         if(err){
                             throw err
                         }
                     })
                 })
             }
-            await Car.deleteMany({gallaryId: id})
-            res.status(200).send({message: 'Gallary deleted', deleteGall})
+            res.status(200).send({message: 'Car deleted', deleteCar})
         } catch (error) {
             res.status(503).json({message: error.message})
         }

@@ -1,4 +1,5 @@
 const cloudinary = require('cloudinary')
+const mongoose = require('mongoose')
 const fs = require('fs');
 
 cloudinary.config({
@@ -43,7 +44,55 @@ const workCtrl = {
     getOne: async (req, res) => {
         const {id} = req.params
         try {
-            const getWork = await Work.findById(id)
+            const getWord = await Work.aggregate([
+                {
+                  $match: { _id: new mongoose.Types.ObjectId(id) },
+                },
+                {
+                  $lookup: {
+                    from: "Works",
+                    let: { authorId: "$authorId" },
+                    pipeline: [
+                      { $match: { $expr: { $eq: ["$authorId", "$$authorId"] } } },
+                    ],
+                    as: "userWork",
+                  },
+                },
+                {
+                  $lookup: {
+                    from: "fashions",
+                    let: { authorId: "$authorId" },
+                    pipeline: [
+                      { $match: { $expr: { $eq: ["$authorId", "$$authorId"] } } },
+                    ],
+                    as: "userFashion",
+                  },
+                },
+                {
+                  $addFields: {
+                    userProd: {
+                      $concatArrays: ["$userWork", "$userFashion"],
+                    },
+                  },
+                },
+                {
+                  $project: {
+                    userWork: 0,
+                    userFashion: 0,
+                  },
+                },
+                {
+                  $lookup: {
+                    from: "users",
+                    let: { user: "$authorId" },
+                    pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$user"] } } }],
+                    as: "user",
+                  },
+                },
+                {
+                  $unwind: "$user",
+                },
+              ]);
             if(!getWork){
                 return res.status(400).send({message: 'Work not found'})
             }
@@ -59,24 +108,11 @@ const workCtrl = {
         }
         
         try {
-            const deleteGall = await Work.findByIdAndDelete(id)
-            if(!deleteGall){
-                return res.status(400).send({message: 'Gallary not found'})
+            const deleteWork = await Work.findByIdAndDelete(id)
+            if(!deleteWork){
+                return res.status(400).send({message: 'Work not found'})
             }
-            const deletePic = await Work.findById(id) 
-            
-            if(deleteGall.length > 0){
-                deletePic.map(async pic => {
-                    console.log(pic);
-                    await cloudinary.v2.uploader.destroy(pic.picture.public_id, async (err) =>{
-                        if(err){
-                            throw err
-                        }
-                    })
-                })
-            }
-            await Work.deleteMany({gallaryId: id})
-            res.status(200).send({message: 'Work deleted', deleteGall})
+            res.status(200).send({message: 'Work deleted', deleteWork})
         } catch (error) {
             res.status(503).json({message: error.message})
         }
