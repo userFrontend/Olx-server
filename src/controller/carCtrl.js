@@ -20,11 +20,7 @@ const Car = require("../model/carModel")
 
 const carCtrl = {
     add: async (req, res) => {
-        const {token} = req.headers;
         try {
-            if (!token) {
-                return res.status(403).json({message: 'Token is required'});
-            }
             if (req.files) {
                 let images = [];
                 const {image} = req.files;

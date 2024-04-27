@@ -1,4 +1,20 @@
+const cloudinary = require('cloudinary')
 const bcrypt = require('bcrypt')
+const fs = require('fs')
+
+cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_API_KEY,
+    api_secret: process.env.CLOUD_API_SECRET,
+  })
+
+const removeTemp = (pathes) => {
+    fs.unlink(pathes, err => {
+      if(err){
+        throw err
+      }
+    })
+  }
 
 const User = require("../model/userModel")
 
@@ -75,8 +91,8 @@ const userCtl = {
                                     return result
                                 }
                             })
-                            if(deleteUser.profilePicture){
-                                await cloudinary.v2.uploader.destroy(deleteUser.profilePicture.public_id, async (err) =>{
+                            if(updateUser.profilePicture){
+                                await cloudinary.v2.uploader.destroy(updateUser.profilePicture.public_id, async (err) =>{
                                     if(err){
                                         throw err
                                     }

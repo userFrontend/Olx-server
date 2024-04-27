@@ -20,11 +20,7 @@ const Work = require("../model/workModel")
 
 const workCtrl = {
     add: async (req, res) => {
-        const {token} = req.headers
         try {
-            if(!token) {
-                return res.status(403).json({message: 'Token is required'})
-            }
             const work = new Work(req.body)
             await work.save()
             res.status(201).json({message: 'new work', work})

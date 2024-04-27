@@ -20,11 +20,7 @@ const Fashion = require("../model/fashionModel")
 
 const fashionCtrl = {
     add: async (req, res) => {
-        const {token} = req.headers
         try {
-            if(!token) {
-                return res.status(403).json({message: 'Token is required'})
-            }
             if (req.files) {
                 let images = [];
                 const {image} = req.files;
@@ -41,6 +37,18 @@ const fashionCtrl = {
                         const imag = {public_id: createdImage.public_id, url: createdImage.secure_url};
                         images.push(imag);
                     }
+                    req.body.photos = images;
+                } else if(image) {
+                    const format = image.mimetype.split('/')[1];
+                    if (format !== 'png' && format !== 'jpeg') {
+                        return res.status(403).json({message: 'File format incorrect'});
+                    }
+                    const createdImage = await cloudinary.v2.uploader.upload(image.tempFilePath, {
+                        folder: 'OLX'
+                    });
+                    removeTemp(image.tempFilePath);
+                    const imag = {public_id: createdImage.public_id, url: createdImage.secure_url};
+                    images.push(imag);
                     req.body.photos = images;
                 }
             }
