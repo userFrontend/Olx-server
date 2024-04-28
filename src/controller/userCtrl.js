@@ -122,10 +122,12 @@ const userCtl = {
             }
             if(user.likes.includes(prodId)){
                 await User.updateOne({$pull: {likes: prodId}})
-                res.status(200).json({message: "Like added", user})
+                const updatedUser = await User.findById(id)
+                res.status(200).json({message: "Like lancled", user: updatedUser})
             } else {
                 await User.updateOne({$push: {likes: prodId}})
-                res.status(200).json({message: "Like lancled", user})
+                const updatedUser = await User.findById(id)
+                res.status(200).json({message: "Like added", user: updatedUser})
             }
         } catch (error) {
             res.status(503).json({message: error.message})
