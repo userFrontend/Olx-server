@@ -40,7 +40,7 @@ const workCtrl = {
     getOne: async (req, res) => {
         const {id} = req.params
         try {
-            const getWord = await Work.aggregate([
+            const getWork = await Work.aggregate([
                 {
                   $match: { _id: new mongoose.Types.ObjectId(id) },
                 },

@@ -180,15 +180,17 @@ const carCtrl = {
                             return result
                         }
                     })
-                    if(updateCar.picture){
-                        await cloudinary.v2.uploader.destroy(updateCar.picture.public_id, async (err) =>{
-                            if(err){
-                                throw err
-                            }
+                    if(updateCar.photos.length > 0){
+                        updateCar.photos.map(async pic => {
+                            await cloudinary.v2.uploader.destroy(pic.public_id, async (err) =>{
+                                if(err){
+                                    throw err
+                                }
+                            })
                         })
                     }
                     const imag = {public_id : imagee.public_id, url: imagee.secure_url}
-                    req.body.sub_photos = imag;
+                    req.body.photos = imag;
                 }
                 }
             const newCar = await Car.findByIdAndUpdate(id, req.body, {new: true})

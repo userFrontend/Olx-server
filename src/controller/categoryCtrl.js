@@ -58,6 +58,50 @@ const categoryCtrl = {
             res.status(503).json({message: error.message})
         }
     },
+    // delete: async (req, res) => {
+    //     const {id} = req.params
+    //     if(!id){
+    //         return res.status(403).json({message: 'insufficient information'})
+    //     }
+        
+    //     try {
+    //         const delCategory = await Category.findById(id)
+    //         if(!delCategory){
+    //             return res.status(400).send({message: 'Category not found'})
+    //         }
+            
+    //         // if(delCategory.image){
+    //         //         await cloudinary.v2.uploader.destroy(delCategory.image.public_id, async (err) =>{
+    //         //             if(err){
+    //         //                 throw err
+    //         //             }
+    //         //         })
+    //         // }
+    //         const findArrType = []
+    //         const findSub = await Sub.find({categoryId: id})
+    //         for (const sub of findSub) {
+    //             const findType = await Type.find({subId: sub._id})
+    //             const findCategory = await Category.find({subId: sub._id})
+    //             const findFashion = await Fashion.find({subId: sub._id})
+    //             const findWork = await Work.find({subId: sub._id})
+    //             findArrType.push(findType)
+    //         }
+    //         for (const type of findArrType) {
+    //             const findCategory = await Category.find({categoryType: type._id})
+    //             const findFashion = await Fashion.find({categoryType: type._id})
+    //             const findWork = await Work.find({categoryType: type._id})
+    //             findArrType.push(findType)
+    //         }
+    //         console.log(findArrType);
+            
+    //         return console.log(findSub);
+    //         const subDel = await Sub.deleteMany({categoryId: id})
+    //         // await Sub.deleteMany({categoryId: id})
+    //         res.status(200).send({message: 'Gallary deleted', delCategory})
+    //     } catch (error) {
+    //         res.status(503).json({message: error.message})
+    //     }
+    // },
     delete: async (req, res) => {
         const {id} = req.params
         if(!id){
@@ -65,43 +109,66 @@ const categoryCtrl = {
         }
         
         try {
-            const delCategory = await Category.findById(id)
-            if(!delCategory){
+            const deleteCategory = await Category.findByIdAndDelete(id)
+            if(!deleteCategory){
                 return res.status(400).send({message: 'Category not found'})
             }
-            
-            // if(delCategory.image){
-            //         await cloudinary.v2.uploader.destroy(delCategory.image.public_id, async (err) =>{
-            //             if(err){
-            //                 throw err
-            //             }
-            //         })
-            // }
-            const findArrType = []
-            const findSub = await Sub.find({categoryId: id})
-            for (const sub of findSub) {
-                const findType = await Type.find({subId: sub._id})
-                const findCar = await Car.find({subId: sub._id})
-                const findFashion = await Fashion.find({subId: sub._id})
-                const findWork = await Work.find({subId: sub._id})
-                findArrType.push(findType)
+            if(deleteCategory.image){
+                await cloudinary.v2.uploader.destroy(deleteCategory.image.public_id, async (err) =>{
+                    if(err){
+                        throw err
+                    }
+                })
             }
-            for (const type of findArrType) {
-                const findCar = await Car.find({categoryType: type._id})
-                const findFashion = await Fashion.find({categoryType: type._id})
-                const findWork = await Work.find({categoryType: type._id})
-                findArrType.push(findType)
-            }
-            console.log(findArrType);
-            
-            return console.log(findSub);
-            const subDel = await Sub.deleteMany({categoryId: id})
-            // await Sub.deleteMany({categoryId: id})
-            res.status(200).send({message: 'Gallary deleted', delCategory})
+            res.status(200).send({message: 'Category deleted', deleteCategory})
         } catch (error) {
             res.status(503).json({message: error.message})
         }
     },
+    update: async (req, res) => {
+        const {id} = req.params
+        if(!id){
+            return res.status(403).json({message: 'insufficient information'})
+        }
+        try {
+            const updateCategory = await Category.findById(id)
+            if(!updateCategory){
+                return res.status(400).send({message: 'Category not found'})
+            }
+            if(req.files){
+                const {image} = req.files;
+                if(image){
+                    const format = image.mimetype.split('/')[1];
+                    if(format !== 'png' && format !== 'jpeg') {
+                        return res.status(403).json({message: 'file format incorrect'})
+                    }
+                    const imagee = await cloudinary.v2.uploader.upload(image.tempFilePath, {
+                        folder: 'OLX'
+                    }, async (err, result) => {
+                        if(err){
+                            throw err
+                        } else {
+                            removeTemp(image.tempFilePath)
+                            return result
+                        }
+                    })
+                    if(updateCategory.image){
+                        await cloudinary.v2.uploader.destroy(updateCategory.image.public_id, async (err) =>{
+                            if(err){
+                                throw err
+                            }
+                        })
+                    }
+                    const imag = {public_id : imagee.public_id, url: imagee.secure_url}
+                    req.body.image = imag;
+                }
+                }
+            const newCategory = await Category.findByIdAndUpdate(id, req.body, {new: true})
+            res.status(200).send({message: 'Update successfully', newCategory})
+        } catch (error) {
+            res.status(503).json({message: error.message})
+        }
+    }
 }
 
 module.exports = categoryCtrl

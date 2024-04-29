@@ -10,6 +10,10 @@ const categorySchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    color:{
+        type: 'String',
+        default: 'aqua'
+    },
     image: {
         type: Object,
         required: true
