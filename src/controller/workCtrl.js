@@ -158,7 +158,22 @@ const workCtrl = {
         } catch (error) {
             res.status(503).json({message: error.message})
         }
-    }
+    },
+    similar: async (req, res) => {
+      try {
+        const { name } = req.query;
+  
+        const result = await Promise.all([
+          Car.find({ name: { $regex: new RegExp(name, "i") } }),
+          Fashion.find({ name: { $regex: new RegExp(name, "i") } }),
+          Work.find({ name: { $regex: new RegExp(name, "i") } }),
+        ]);
+  
+        res.status(200).send({ message: "Found result", similar: result.flat() });
+      } catch (error) {
+        console.log(error);
+      }
+    },
 }
 
 module.exports = workCtrl
