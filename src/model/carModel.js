@@ -65,7 +65,6 @@ const carSchema = new mongoose.Schema({
         },
         options: {
             type: String,
-            required: true
         },
         location: {
             type: String,
