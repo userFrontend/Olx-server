@@ -5,16 +5,24 @@ const fashionSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        method: {
+            type: String,
+            default: 'fashion'
+        },
         authorId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
             required: true
         },
+        categoryId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Category',
+        },
         subId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Sub',
         },
-        categoryType: {
+        typeId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Type',
         },

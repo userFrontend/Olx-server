@@ -5,6 +5,10 @@ const typeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    categoryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+    },
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

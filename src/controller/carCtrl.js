@@ -147,15 +147,14 @@ const carCtrl = {
                     })
                 })
             }
-            res.status(200).send({message: 'Car deleted', deleteCar})
+            res.status(200).send({message: 'Car deleted', deleted: deleteCar})
         } catch (error) {
             res.status(503).json({message: error.message})
         }
     },
     update: async (req, res) => {
-        const {title} = req.body
         const {id} = req.params
-        if(!title || !id){
+        if(!id){
             return res.status(403).json({message: 'insufficient information'})
         }
         try {
@@ -194,7 +193,7 @@ const carCtrl = {
                 }
                 }
             const newCar = await Car.findByIdAndUpdate(id, req.body, {new: true})
-            res.status(200).send({message: 'Update successfully', newCar})
+            res.status(200).send({message: 'Update successfully', updated: newCar})
         } catch (error) {
             res.status(503).json({message: error.message})
         }

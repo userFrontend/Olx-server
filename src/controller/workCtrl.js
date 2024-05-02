@@ -102,7 +102,6 @@ const workCtrl = {
         if(!id){
             return res.status(403).json({message: 'insufficient information'})
         }
-        
         try {
             const deleteWork = await Work.findByIdAndDelete(id)
             if(!deleteWork){
@@ -114,10 +113,8 @@ const workCtrl = {
         }
     },
     update: async (req, res) => {
-        const {title} = req.body
         const {id} = req.params
-        console.log(title, id);
-        if(!title || !id){
+        if(!id){
             return res.status(403).json({message: 'insufficient information'})
         }
         try {
@@ -125,34 +122,6 @@ const workCtrl = {
             if(!updateWork){
                 return res.status(400).send({message: 'work not found'})
             }
-            if(req.files){
-                const {image} = req.files;
-                if(image){
-                    const format = image.mimetype.split('/')[1];
-                    if(format !== 'png' && format !== 'jpeg') {
-                        return res.status(403).json({message: 'file format incorrect'})
-                    }
-                    const imagee = await cloudinary.v2.uploader.upload(image.tempFilePath, {
-                        folder: 'OLX'
-                    }, async (err, result) => {
-                        if(err){
-                            throw err
-                        } else {
-                            removeTemp(image.tempFilePath)
-                            return result
-                        }
-                    })
-                    if(updatePic.picture){
-                        await cloudinary.v2.uploader.destroy(updatePic.picture.public_id, async (err) =>{
-                            if(err){
-                                throw err
-                            }
-                        })
-                    }
-                    const imag = {public_id : imagee.public_id, url: imagee.secure_url}
-                    req.body.sub_photos = imag;
-                }
-                }
             const newWork = await Work.findByIdAndUpdate(id, req.body, {new: true})
             res.status(200).send({message: 'Update successfully', newWork})
         } catch (error) {

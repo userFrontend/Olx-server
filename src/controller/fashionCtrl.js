@@ -147,7 +147,7 @@ const fashionCtrl = {
                     })
                 })
             }
-            res.status(200).send({message: 'Fashion deleted', deleteFashion})
+            res.status(200).send({message: 'Fashion deleted', deleted: deleteFashion})
         } catch (error) {
             res.status(503).json({message: error.message})
         }
@@ -160,7 +160,7 @@ const fashionCtrl = {
             return res.status(403).json({message: 'insufficient information'})
         }
         try {
-            const updatefashion = await fashion.findById(id)
+            const updatefashion = await Fashion.findById(id)
             if(!updatefashion){
                 return res.status(400).send({message: 'fashion not found'})
             }
@@ -193,7 +193,7 @@ const fashionCtrl = {
                 }
                 }
             const newfashion = await Fashion.findByIdAndUpdate(id, req.body, {new: true})
-            res.status(200).send({message: 'Update successfully', newfashion})
+            res.status(200).send({message: 'Update successfully', updated: newfashion})
         } catch (error) {
             res.status(503).json({message: error.message})
         }

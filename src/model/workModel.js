@@ -5,6 +5,14 @@ const workSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        method: {
+            type: String,
+            default: 'work'
+        },
+        categoryId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Category',
+        },
         authorId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
@@ -14,7 +22,7 @@ const workSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Sub',
         },
-        categoryType: {
+        typeId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Type',
         },

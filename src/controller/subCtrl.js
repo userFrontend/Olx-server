@@ -46,26 +46,28 @@ const subCtrl = {
         if(!id){
             return res.status(403).json({message: 'insufficient information'})
         }
-        
         try {
             const deleteGall = await Sub.findByIdAndDelete(id)
             if(!deleteGall){
-                return res.status(400).send({message: 'Gallary not found'})
+                return res.status(400).send({message: 'Sub Category not found'})
             }
-            const deletePic = await Sub.findById(id) 
-            
-            if(deleteGall.length > 0){
-                deletePic.map(async pic => {
-                    console.log(pic);
-                    await cloudinary.v2.uploader.destroy(pic.picture.public_id, async (err) =>{
-                        if(err){
-                            throw err
-                        }
-                    })
-                })
+            res.status(200).send({message: 'Sub Category deleted', deleted: deleteGall})
+        } catch (error) {
+            res.status(503).json({message: error.message})
+        }
+    },
+    update: async (req, res) => {
+        const {id} = req.params
+        if(!id){
+            return res.status(403).json({message: 'insufficient information'})
+        }
+        try {
+            const updateSub = await Sub.findById(id)
+            if(!updateSub){
+                return res.status(400).send({message: 'Sub not found'})
             }
-            await Sub.deleteMany({gallaryId: id})
-            res.status(200).send({message: 'Gallary deleted', deleteGall})
+            const newSub = await Sub.findByIdAndUpdate(id, req.body, {new: true})
+            res.status(200).send({message: 'Update successfully', updated: newSub})
         } catch (error) {
             res.status(503).json({message: error.message})
         }

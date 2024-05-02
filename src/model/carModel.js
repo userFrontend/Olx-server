@@ -5,6 +5,14 @@ const carSchema = new mongoose.Schema({
             type: String,
             required: true
         },
+        method: {
+            type: String,
+            default: 'car'
+        },
+        categoryId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
         authorId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
@@ -14,7 +22,7 @@ const carSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Sub',
         },
-        categoryType: {
+        typeId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Type',
         },
