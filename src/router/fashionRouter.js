@@ -7,5 +7,6 @@ router.get('/' , fashionCtrl.get)
 router.get('/:id' , fashionCtrl.getOne)
 router.put('/:id' , authMiddleware, fashionCtrl.update)
 router.delete('/:id' , authMiddleware, fashionCtrl.delete)
+router.get('/similar' , authMiddleware, fashionCtrl.similar)
 
 module.exports = router
