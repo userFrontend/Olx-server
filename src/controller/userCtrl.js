@@ -121,11 +121,11 @@ const userCtl = {
                 return res.status(404).send({message: "User is Not Found"})
             }
             if(user.likes.includes(prodId)){
-                await User.updateOne({$pull: {likes: prodId}})
+                await user.updateOne({$pull: {likes: prodId}})
                 const updatedUser = await User.findById(id)
                 res.status(200).json({message: "Like lancled", user: updatedUser})
             } else {
-                await User.updateOne({$push: {likes: prodId}})
+                await user.updateOne({$push: {likes: prodId}})
                 const updatedUser = await User.findById(id)
                 res.status(200).json({message: "Like added", user: updatedUser})
             }
