@@ -7,6 +7,6 @@ router.get('/work/' , workCtrl.get)
 router.get('/work/:id' , workCtrl.getOne)
 router.put('/work/:id' , workCtrl.update)
 router.delete('/work/:id' , workCtrl.delete)
-router.get('/work/similar' , authMiddleware, workCtrl.similar)
+router.get('/works/similar' , authMiddleware, workCtrl.similar)
 
 module.exports = router
