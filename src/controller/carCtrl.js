@@ -17,6 +17,8 @@ const removeTemp = (pathes) => {
   }
 
 const Car = require("../model/carModel")
+const Fashion = require("../model/fashionModel")
+const Work = require("../model/workModel")
 
 const carCtrl = {
     add: async (req, res) => {
@@ -199,9 +201,9 @@ const carCtrl = {
         }
     },
     similar: async (req, res) => {
+      const { name } = req.body;
+      console.log(name);
         try {
-          const { name } = req.query;
-    
           const result = await Promise.all([
             Car.find({ name: { $regex: new RegExp(name, "i") } }),
             Fashion.find({ name: { $regex: new RegExp(name, "i") } }),
