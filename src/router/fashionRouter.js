@@ -2,11 +2,11 @@ const router = require('express').Router()
 const fashionCtrl = require('../controller/fashionCtrl')
 const authMiddleware = require('../middleware/authMiddleware')
 
-router.post('/', authMiddleware, fashionCtrl.add)
-router.get('/' , fashionCtrl.get)
-router.get('/:id' , fashionCtrl.getOne)
-router.put('/:id' , authMiddleware, fashionCtrl.update)
-router.delete('/:id' , authMiddleware, fashionCtrl.delete)
-router.get('/similar' , authMiddleware, fashionCtrl.similar)
+router.post('/fashion/', authMiddleware, fashionCtrl.add)
+router.get('/fashion/' , fashionCtrl.get)
+router.get('/fashion/:id' , fashionCtrl.getOne)
+router.put('/fashion/:id' , authMiddleware, fashionCtrl.update)
+router.delete('/fashion/:id' , authMiddleware, fashionCtrl.delete)
+router.get('/fashion/similar' , authMiddleware, fashionCtrl.similar)
 
 module.exports = router
