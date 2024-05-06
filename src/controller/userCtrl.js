@@ -17,6 +17,9 @@ const removeTemp = (pathes) => {
   }
 
 const User = require("../model/userModel")
+const Car = require("../model/carModel")
+const Work = require("../model/workModel")
+const Fashion = require("../model/fashionModel")
 
 const userCtl = {
     getUser: async (req, res) => {
@@ -45,7 +48,7 @@ const userCtl = {
             if(id === req.user._id || req.userIsAdmin){
                 const deleteUser = await User.findByIdAndDelete(id)
                 if(deleteUser){
-                    if(deleteUser.profilePicture){
+                    if(deleteUser.profilePicture?.public_id){
                         await cloudinary.v2.uploader.destroy(deleteUser.profilePicture.public_id, async (err) =>{
                             if(err){
                                 throw err
@@ -56,6 +59,10 @@ const userCtl = {
                 }
                 return res.status(404).json({message: 'User not found'})
             }
+            const delCar = await Car.deleteMany({authorId: id})
+            console.log(delCar);
+            await Work.deleteMany({authorId: id})
+            await Fashion.deleteMany({authorId: id})
             res.status(405).json({message: 'Acces Denied!. You can delete only your own accout'})
         } catch (error) {
             res.status(503).json({message: error.message})
@@ -91,7 +98,7 @@ const userCtl = {
                                     return result
                                 }
                             })
-                            if(updateUser.profilePicture){
+                            if(updateUser.profilePicture?.public_id){
                                 await cloudinary.v2.uploader.destroy(updateUser.profilePicture.public_id, async (err) =>{
                                     if(err){
                                         throw err
