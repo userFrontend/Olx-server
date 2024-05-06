@@ -216,7 +216,24 @@ const carCtrl = {
           console.error(error);
           res.status(500).send({ message: "Internal server error" });
       }
-  }
+  },
+    location: async (req, res) => {
+      const { name } = req.query;
+      try {
+          const result = await Promise.all([
+              Car.find({ location: { $regex: new RegExp(name, "i") } }),
+              Fashion.find({ location: { $regex: new RegExp(name, "i") } }),
+              Work.find({ location: { $regex: new RegExp(name, "i") } }),
+          ]);
+
+          const similarItems = result.flat();
+  
+          res.status(200).send({ message: "Found result", similar: similarItems });
+      } catch (error) {
+          console.error(error);
+          res.status(500).send({ message: "Internal server error" });
+      }
+  },
 }
 
 module.exports = carCtrl

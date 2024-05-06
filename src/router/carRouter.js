@@ -8,5 +8,6 @@ router.get('/car/:id' , carCtrl.getOne)
 router.put('/car/:id' , authMiddleware, carCtrl.update)
 router.delete('/car/:id' , authMiddleware, carCtrl.delete)
 router.get('/cars/similar', carCtrl.similar)
+router.get('/cars/location', carCtrl.location)
 
 module.exports = router
