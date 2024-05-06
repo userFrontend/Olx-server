@@ -201,20 +201,22 @@ const carCtrl = {
         }
     },
     similar: async (req, res) => {
-      const { name } = req.body;
-      console.log(name);
-        try {
+      const { name } = req.query;
+      try {
           const result = await Promise.all([
-            Car.find({ name: { $regex: new RegExp(name, "i") } }),
-            Fashion.find({ name: { $regex: new RegExp(name, "i") } }),
-            Work.find({ name: { $regex: new RegExp(name, "i") } }),
+              Car.find({ name: { $regex: new RegExp(name, "i") } }),
+              Fashion.find({ name: { $regex: new RegExp(name, "i") } }),
+              Work.find({ name: { $regex: new RegExp(name, "i") } }),
           ]);
-    
-          res.status(200).send({ message: "Found result", similar: result.flat() });
-        } catch (error) {
-          console.log(error);
-        }
-      },
+
+          const similarItems = result.flat();
+  
+          res.status(200).send({ message: "Found result", similar: similarItems });
+      } catch (error) {
+          console.error(error);
+          res.status(500).send({ message: "Internal server error" });
+      }
+  }
 }
 
 module.exports = carCtrl
