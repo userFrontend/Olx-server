@@ -1,7 +1,9 @@
 const Message = require("../model/messageModel")
+const Chat = require("../model/chatModel")
 const cloudinary = require('cloudinary')
 
 const fs = require('fs');
+const { find } = require("../model/carModel");
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
@@ -23,6 +25,11 @@ const messageCtrl = {
         try {
             if(!chatId || !senderId){
                 return res.status(403).json({message: 'Invalid credentials'});
+            }
+
+            const findChat = await Chat.findById(chatId)
+            if(!findChat){
+                return res.status(403).json({message: 'Chat not found'});
             }
 
             if(req.files){
